@@ -7,7 +7,9 @@ const route = express.Router();
 
 const middlewareValidator = [
   check("title").exists().withMessage("Title is mandatory field!"),
-  check("price").isFloat().withMessage("Price must be float Number ???? Need to fix this condition!"),
+  check("price")
+    .isFloat()
+    .withMessage("Price must be float Number ???? Need to fix this condition!"),
   check("category").exists().withMessage("PLease add category"),
   check("img").exists().isURL().withMessage("PLease add url img"),
 ];
@@ -81,30 +83,37 @@ route.post("/", middlewareValidator, async (req, res, next) => {
 //PUT edit book
 route.put("/:asin", middlewareValidator, async (req, res, next) => {
   try {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
+    const books = await getBooks();
+    if (!books.some((book) => book.asin === req.params.asin)) {
       const err = new Error();
-      err.errorList = errors;
+      err.errorList = { mssg: "Asin not found check again!" };
       err.statusCode = 400;
       next(err); // passing error to errorHandling
     } else {
-      const books = await getBooks();
-      const { asin, createdAt } = books.find(
-        (book) => book.asin === req.params.asin
-      );
-      const newBooksArray = books.filter(
-        (book) => book.asin !== req.params.asin
-      ); // filtering out the specific book object
-      const bookModified = {
-        ...req.body,
-        asin,
-        createdAt,
-        updatedAt: new Date(),
-      }; // saving book.id && adding field lastModified
-      newBooksArray.push(bookModified);
-      await writeBooks(newBooksArray);
-      res.send(bookModified);
-    } // if i send like this res.status(204).send(bookModified); status code always will omit the thing passed to send(string || object)
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        const err = new Error();
+        err.errorList = errors;
+        err.statusCode = 400;
+        next(err); // passing error to errorHandling
+      } else {
+        const { asin, createdAt } = books.find(
+          (book) => book.asin === req.params.asin
+        );
+        const newBooksArray = books.filter(
+          (book) => book.asin !== req.params.asin
+        ); // filtering out the specific book object
+        const bookModified = {
+          ...req.body,
+          asin,
+          createdAt,
+          updatedAt: new Date(),
+        }; // saving book.id && adding field lastModified
+        newBooksArray.push(bookModified);
+        await writeBooks(newBooksArray);
+        res.send(bookModified);
+      } // if i send like this res.status(204).send(bookModified); status code always will omit the thing passed to send(string || object)
+    }
   } catch (error) {
     console.log("error in PUT book, pasing it to errorHandling" + error);
     next(error);
