@@ -25,6 +25,7 @@ const corsOption = {
 };
 
 server.use(cors(corsOption));
+server.use(express.json());
 
 server.use("/books", booksRoutes);
 server.use(notFoundErrorHandler); // 1. First check not founds!

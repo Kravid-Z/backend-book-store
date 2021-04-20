@@ -9,7 +9,10 @@ const { readJSON, writeJSON } = fsx;
 //   join(dirname(fileURLToPath(import.meta.url)), newPath); // DOESN'T WORK error with string type in path
 // };
 
-const dataFolderPath = join(dirname(fileURLToPath(import.meta.url)), "../db");
+const dataFolderPath = join(
+  dirname(fileURLToPath(import.meta.url)),
+  "../../db"
+);
 
 export const getBooks = async () =>
   await readJSON(join(dataFolderPath, "books.json"));

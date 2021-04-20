@@ -1,14 +1,16 @@
 import express from "express";
+import { v4 as uuid } from "uuid";
 import { getBooks, writeBooks } from "../books/fs-services-books.js";
-import {check, validationResult} from "express-validator"
+import { check, validationResult } from "express-validator";
 
 const route = express.Router();
 
 const middlewareValidator = [
   check("asin").exists().withMessage("Asin is mandatory field!"),
   check("title").exists().withMessage("Name is mandatory field!"),
-  check("price").isInt().withMessage("Age must be an integer!"),
+  check("price").isFloat().withMessage("Price must be an integer!"),
   check("category").exists().withMessage("PLease add category"),
+  check("img").exists().isURL().withMessage("PLease add url img"),
 ];
 
 //GET all books or filetred books by query ?
@@ -55,7 +57,7 @@ route.get("/:asin", async (req, res, next) => {
 route.post("/", middlewareValidator, async (req, res, next) => {
   try {
     const errors = validationResult(req);
-    if (!errors.isEmpty()) {
+      if (!errors.isEmpty()) {
       const err = new Error();
       err.errorList = errors;
       err.statusCode = 400;
@@ -64,7 +66,7 @@ route.post("/", middlewareValidator, async (req, res, next) => {
       const books = await getBooks();
       const newBook = {
         ...req.body,
-        asin: uniqid(),
+        asin: uuid(),
         createdAt: new Date(),
         updatedAt: new Date(),
       }; //New Book && adding unique id for Book && ceratedDate
@@ -73,12 +75,12 @@ route.post("/", middlewareValidator, async (req, res, next) => {
       res.status(201).send({ asin: newBook.asin });
     }
   } catch (error) {
-    error.statusCode = 500;
+    error.statusCode = 400;
     next(error);
   }
 });
 //PUT edit book
-route.put("/:asin", async (req, res, next) => {
+route.put("/:asin", middlewareValidator, async (req, res, next) => {
   try {
     const books = await getBooks();
     const newBooksArray = books.filter((book) => book.asin !== req.params.asin); // filtering out the specific book object
