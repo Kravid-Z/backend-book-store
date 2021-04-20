@@ -6,7 +6,6 @@ import { check, validationResult } from "express-validator";
 const route = express.Router();
 
 const middlewareValidator = [
-  check("asin").exists().withMessage("Asin is mandatory field!"),
   check("title").exists().withMessage("Name is mandatory field!"),
   check("price").isFloat().withMessage("Price must be an integer!"),
   check("category").exists().withMessage("PLease add category"),
@@ -57,7 +56,7 @@ route.get("/:asin", async (req, res, next) => {
 route.post("/", middlewareValidator, async (req, res, next) => {
   try {
     const errors = validationResult(req);
-      if (!errors.isEmpty()) {
+    if (!errors.isEmpty()) {
       const err = new Error();
       err.errorList = errors;
       err.statusCode = 400;
