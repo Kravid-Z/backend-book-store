@@ -82,10 +82,14 @@ route.post("/", middlewareValidator, async (req, res, next) => {
 route.put("/:asin", middlewareValidator, async (req, res, next) => {
   try {
     const books = await getBooks();
+    const { asin, createdAt } = books.find(
+      (book) => book.asin === req.params.asin
+    );
     const newBooksArray = books.filter((book) => book.asin !== req.params.asin); // filtering out the specific book object
     const bookModified = {
       ...req.body,
-      asin: req.params.asin,
+      asin,
+      createdAt,
       updatedAt: new Date(),
     }; // saving book.id && adding field lastModified
     newBooksArray.push(bookModified);
