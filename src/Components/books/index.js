@@ -2,8 +2,19 @@ import express from "express";
 import { v4 as uuid } from "uuid";
 import { getBooks, writeBooks } from "../books/fs-services-books.js";
 import { check, validationResult } from "express-validator";
+import multer from "multer";
+import { CloudinaryStorage } from "multer-storage-cloudinary";
+import { v2 } from "cloudinary";
 
 const router = express.Router();
+const cloudinaryStorage = new CloudinaryStorage({
+  cloudinary: v2,
+  params: {
+    folder: "book-strive",
+  },
+});
+
+const uploader = multer({ storage: cloudinaryStorage });
 
 const middlewareValidator = [
   check("title").exists().withMessage("Title is mandatory field!"),
@@ -77,6 +88,14 @@ router.post("/", middlewareValidator, async (req, res, next) => {
     }
   } catch (error) {
     error.statusCode = 400;
+    next(error);
+  }
+});
+//POST coverbook IMG
+router.post("/upload", uploader.single("coverBook"), async (req, res, next) => {
+  try {
+    res.send({ cloudinaryURL: req.file.path });
+  } catch (error) {
     next(error);
   }
 });
