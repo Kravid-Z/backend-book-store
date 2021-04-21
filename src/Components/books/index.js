@@ -3,7 +3,7 @@ import { v4 as uuid } from "uuid";
 import { getBooks, writeBooks } from "../books/fs-services-books.js";
 import { check, validationResult } from "express-validator";
 
-const route = express.Router();
+const router = express.Router();
 
 const middlewareValidator = [
   check("title").exists().withMessage("Title is mandatory field!"),
@@ -15,7 +15,7 @@ const middlewareValidator = [
 ];
 
 //GET all books or filetred books by query ?
-route.get("/", async (req, res, next) => {
+router.get("/", async (req, res, next) => {
   try {
     const books = await getBooks();
 
@@ -37,7 +37,7 @@ route.get("/", async (req, res, next) => {
 });
 
 //GET book by ===> asin
-route.get("/:asin", async (req, res, next) => {
+router.get("/:asin", async (req, res, next) => {
   try {
     const books = await getBooks();
     const book = books.find((book) => book.asin === req.params.asin);
@@ -55,7 +55,7 @@ route.get("/:asin", async (req, res, next) => {
   }
 });
 //POST new book
-route.post("/", middlewareValidator, async (req, res, next) => {
+router.post("/", middlewareValidator, async (req, res, next) => {
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -81,7 +81,7 @@ route.post("/", middlewareValidator, async (req, res, next) => {
   }
 });
 //PUT edit book
-route.put("/:asin", middlewareValidator, async (req, res, next) => {
+router.put("/:asin", middlewareValidator, async (req, res, next) => {
   try {
     const books = await getBooks();
     if (!books.some((book) => book.asin === req.params.asin)) {
@@ -120,7 +120,7 @@ route.put("/:asin", middlewareValidator, async (req, res, next) => {
   }
 });
 //DELETE book
-route.delete("/:asin", async (req, res, next) => {
+router.delete("/:asin", async (req, res, next) => {
   // need another condition to avoid FRONTEND send asin that doesn't exist.
   try {
     const books = await getBooks();
@@ -140,4 +140,4 @@ route.delete("/:asin", async (req, res, next) => {
   }
 });
 
-export default route;
+export default router;
