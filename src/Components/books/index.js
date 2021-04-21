@@ -94,6 +94,7 @@ router.post("/", middlewareValidator, async (req, res, next) => {
 //POST coverbook IMG
 router.post("/upload", uploader.single("coverBook"), async (req, res, next) => {
   try {
+    //NEED TO Save cloudinaryURL in mi db books.json || another TABLE.json ??
     res.send({ cloudinaryURL: req.file.path });
   } catch (error) {
     next(error);
